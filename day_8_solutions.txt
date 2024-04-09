@@ -14,12 +14,53 @@ to convert datetime/timestamp field to date or any other type of type casting
 cast(order_date as date) -> order_date::date
 
 1- https://datalemur.com/questions/matching-skills
+SELECT candidate_id
+FROM candidates GROUP BY candidate_id having sum(CASE WHEN skill in ('Python','Tableau','PostgreSQL') then 1 else 0 END)=3
+ORDER BY candidate_id;
 2- https://datalemur.com/questions/sql-page-with-no-likes
+SELECT p.page_id FROM 
+pages p LEFT JOIN page_likes pl on p.page_id=pl.page_id
+group by p.page_id
+having count(pl.page_id)=0;
 3- https://datalemur.com/questions/tesla-unfinished-parts
+SELECT part, assembly_step 
+FROM parts_assembly where finish_date is NULL;
 4- https://datalemur.com/questions/laptop-mobile-viewership
+SELECT sum(case when device_type='laptop' then 1 else 0 end) as laptop_views,
+sum(case when device_type in ('tablet','phone') then 1 else 0 end) as mobile_views
+FROM viewership;
 5- https://datalemur.com/questions/sql-average-post-hiatus-1
+SELECT user_id,
+max(date_part('DOY', post_date))-min(date_part('DOY', post_date)) as days_between
+from posts
+where date_part('year', post_date)=2021
+group by user_id
+having max(date_part('DOY', post_date))-min(date_part('DOY', post_date))>0;
+
 6- https://datalemur.com/questions/teams-power-users
+select sender_id, count(*) as message_count
+from messages where date_part('month', sent_date)=8 and date_part('year', sent_date)=2022
+GROUP BY sender_id
+ORDER BY message_count DESC
+limit 2;
 7- https://datalemur.com/questions/completed-trades
+SELECT u.city, count(*) as total_orders FROM 
+trades t inner JOIN users u 
+on t.user_id=u.user_id where t.status='Completed'
+GROUP BY u.city
+ORDER BY total_orders DESC
+limit 3;
 8- https://datalemur.com/questions/sql-avg-review-ratings
+SELECT date_part('month', submit_date) as mth,product_id as product, round(AVG(stars),2) AS avg_stars
+FROM reviews
+GROUP BY date_part('month', submit_date), product_id
+ORDER BY mth, product;
 9- https://datalemur.com/questions/click-through-rate
+SELECT app_id, 
+round(count(case when event_type='click' then 1 else null end)*100.0/count(case when event_type='impression' then 1 else null end),2) as ctr 
+FROM events where date_part('year', timestamp)=2022
+GROUP BY app_id;
 10-https://datalemur.com/questions/second-day-confirmation
+SELECT e.user_id
+FROM emails e inner join texts t on e.email_id=t.email_id
+where date_part('DOY', t.action_date)-date_part('DOY', e.signup_date)=1 and t.signup_action='Confirmed';
