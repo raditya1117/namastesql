@@ -24,7 +24,7 @@ mysql> select o.sub_category from orders o inner join returns r on o.order_id=r.
 
 
 6- write a query to find cities where not even a single order was returned.
-mysql> select o.city from orders o left join returns r on o.order_id=r.order_id group by city having count(r.order_id)=0; (or maybe 1)
+mysql> select o.city from orders o left join returns r on o.order_id=r.order_id group by city having count(r.order_id)=0;
 
 7- write a query to find top 3 subcategories by sales of returned orders in east region.
 mysql> select sub_category, sum(o.sales) as sales from orders o inner join returns r on o.order_id=r.order_id where o.region='East' group by sub_category order by sales desc limit 3;
