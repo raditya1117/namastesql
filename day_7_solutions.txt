@@ -1,6 +1,6 @@
 1- write a query to produce below output from icc_world_cup table.
 team_name, no_of_matches_played , no_of_wins , no_of_losses
-Not solved.
+mysql> select team as team_name, count(*) as no_of_matches_played, sum(win_flag) as no_of_wins, count(*)-sum(win_flag) as no_of_losses from (select Team_1 as team, case when Winner=Team_1 then 1 else 0 end as win_flag from icc_world_cup union all select Team_2, case when Winner=Team_2 then 1 else 0 end as win_flag from icc_world_cup) as win_flag_table group by win_flag_table.team;
 
 2- write a query to print first name and last name of a customer using orders table(everything after first space can be considered as last name)
 customer_name, first_name,last_name
