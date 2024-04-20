@@ -1,0 +1,40 @@
+1- write a query to find premium customers from orders data. Premium customers are those who have done more orders than average no of orders per customer.
+mysql> with order_avg_cte as (select customer_id,count(distinct order_id) as num_orders from orders group by customer_id) select customer_id from order_avg_cte where num_orders > (select avg(num_orders) from order_avg_cte);
+
+2- write a query to find employees whose salary is more than average salary of employees in their department.
+mysql> with avg_salary_cte as (select dept_id, avg(salary) as avg_salary from employee group by dept_id) select emp_id, emp_name from employee e inner join avg_salary_cte a on e.dept_id=a.dept_id where e.salary>a.avg_salary;
+
+
+3- write a query to find employees whose age is more than average age of all the employees.
+mysql> select emp_id, emp_name from employee where emp_age>(select avg(emp_age) from employee);
+
+4- write a query to print emp name, salary and dep id of highest salaried employee in each department 
+mysql> with max_sal_cte as (select dept_id, max(salary) as max_sal from employee group by dept_id) select e.emp_name as employee_name, e.salary as salary, e.dept_id as dept_id from employee e inner join max_sal_cte m on e.dept_id=m.dept_id where e.salary=m.max_sal;
+
+
+5- write a query to print emp name, salary and dep id of highest salaried overall
+mysql> select emp_name, salary, dept_id from employee where salary=(select max(salary) from employee);
+
+
+6- write a query to print product id and total sales of highest selling products (by no of units sold) in each category.
+mysql> with count_cte as (select category,product_id, sum(quantity) as sales_count from orders group by category, product_id), category_max_count_cte as (select category, max(sales_count) as max_sales_category from count_cte group by category), product_count_cte as ( sele
+ct product_id from count_cte c inner join category_max_count_cte cm on c.category=cm.category where c.sales_count=cm.max_sales_category)
+ select o.product_id, sum(sales) as total_sales from orders o inner join product_count_cte p on o.product_id=p.product_id group by o.product_id;
+
+
+7- https://datalemur.com/questions/signup-confirmation-rate
+with confirmed_cte as (select * from texts where signup_action='Confirmed'),
+all_cte as (select e.user_id, c.signup_action from emails e LEFT JOIN confirmed_cte c on c.email_id=e.email_id)
+select round(avg(case when signup_action is null then 0 else 1 end),2) from all_cte;
+
+
+
+8- https://datalemur.com/questions/supercloud-customer
+with category_count_cte as (SELECT c.customer_id, p.product_category, sum(c.amount)
+FROM customer_contracts c inner join products p 
+on c.product_id=p.product_id GROUP BY c.customer_id, p.product_category
+having sum(c.amount)>0)
+select customer_id from category_count_cte 
+GROUP BY customer_id
+having count(distinct product_category)=(select count(DISTINCT product_category) from products);
+
