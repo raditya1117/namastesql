@@ -6,11 +6,12 @@ mysql> update orders set city=null where order_id in ('CA-2020-161389','US-2021-
 mysql> select * from orders where city is null;
 
 3- write a query to get total profit, first order date and latest order date for each category
-mysql> select category, sum(profit) as total_profit, min(order_date) as first_order_date, max(order_date) as latest_order_dat
-e from orders group by category;
+mysql> select category, sum(profit) as total_profit, min(order_date) as first_order_date, max(order_date) as latest_order_date from orders group by category;
+
 
 4- write a query to find sub-categories where average profit is more than the half of the max profit in that sub-category
-mysql> select sub_category from orders group by sub_category having avg(profit)>max(profit)/2;
+mysql> select sub_category from orders group by sub_category having avg(profit)> max(profit)/2;
+
 
 
 5- create the exams table with below script;
@@ -25,18 +26,28 @@ insert into exams values (1,'Chemistry',91),(1,'Physics',91),(1,'Maths',92)
 write a query to find students who have got same marks in Physics and Chemistry.
 mysql> select student_id, count(*) from exams where subject in ('Physics', 'Chemistry') group by student_id,marks having count(*)>1;
 
+mysql> select student_id from exams where subject in ('Physics','Chemistry') group by student_id having count(distinct marks)=1 and count(*)=2;
+
+
+
 
 6- write a query to find total number of products in each category.
-mysql> select category, count(distinct product_id) as total_products from orders group by category;
+mysql> select category, count(distinct product_id) as number_of_products from or
+ders group by category;
 
 
 7- write a query to find top 5 sub categories in west region by total quantity sold
 mysql> select sub_category, sum(quantity) as total_quantity_sold from orders where region='West' group by sub_category order
 by total_quantity_sold desc limit 5;
 
+mysql> select sub_category from orders where region='west' group by sub_category
+ order by sum(quantity) desc limit 5;
+
 
 8- write a query to find total sales for each region and ship mode combination for orders in year 2020
-mysql> select region, ship_mode, sum(sales) as total_sales from orders where order_date between '2020-01-01' and '2020-12-31'group by region, ship_mode;
+mysql> select region, ship_mode, sum(sales) as total_sales from orders where order_date between '2020-01-01' and '2020-12-31' group by region, ship_mode;
+mysql> select region, ship_mode, sum(sales) as total_sales from orders where order_date>'2020-01-01' and order_date<'2021-01-01' group by region, ship_mode;
+
 
 
 
