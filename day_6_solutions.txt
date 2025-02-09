@@ -5,42 +5,63 @@ mysql> update employee set dob = date_add(curdate(), interval -1*emp_age year);
 1- write a query to print emp name , their manager name and diffrence in their age (in days) for employees whose year of birth is before their managers year of birth.
 mysql> select e.emp_name as employee_name, m.emp_name as manager_name, datediff(e.dob,m.dob)/365 as age_difference_years from employee e inner join employee m on e.manager_id=m.emp_id where year(e.dob)>year(m.dob);
 
+mysql> select e.emp_name as employee_name, m.emp_name as manager_name, datediff(m.dob,e.dob) as age_difference from employee e inner join employee m on e.manager_id=m.emp_id where e.dob<m.dob;
+
 
 2- write a query to find subcategories who never had any return orders in the month of november (irrespective of years).
 mysql> select sub_category from orders o left join returns r on o.order_id=r.order_id where month(order_date)=11 group by sub_category having count(r.order_id)=0;
 
+mysql> select o.sub_category from orders o left join returns r on o.order_id=r.order_id where month(o.order_date)=11 group by o.sub_category having count(r.order_id)=0;
 
 3- orders table can have multiple rows for a particular order_id when customers buys more than 1 product in an order.
 Write a query to find order ids where there is only 1 product bought by the customer.
 mysql> select order_id from orders group by order_id having count(*)=1;
+mysql> select order_id from orders group by order_id having count(order_id)=1;
 
 
 4- write a query to print manager names along with the comma separated list(order by emp salary) of all employees directly reporting to him.
 mysql> select m.emp_name as manager_name, group_concat(e.emp_name) as employees
 from employee e inner join employee m on e.manager_id=m.emp_id group by m.emp_name;
 
+mysql> select m.emp_name as manager, group_concat(e.emp_name order by e.salary,'
+,') as sub_ordinates from employee e inner join employee m on e.manager_id=m.emp
+_id group by m.emp_name;
 
 5- write a query to get number of business days between order_date and ship_date (exclude weekends). 
 Assume that all order date and ship date are on weekdays only.
 mysql> select order_id, datediff(ship_date,order_date)-2*(week(ship_date)-week(order_date)) as number_of_days from orders;
 
+mysql> select order_id,ship_date, order_date, dayofyear(ship_date)-dayofyear(order_date)-2*(week(ship_date)-week(order_date)) as number_of_days from orders;
+
+mysql> select order_id,ship_date, order_date, datediff(ship_date,order_date)-2*(week(ship_date)-week(order_date)) as number_of_days from orders;
+
+Best soln:
+mysql> select order_id,ship_date, order_date, datediff(ship_date,order_date)-2*floor(datediff(ship_date,order_date)/7) as number_of_days from orders limit 50;
 
 6- write a query to print 3 columns : category, total_sales and (total sales of returned orders)
 mysql> select o.category, sum(sales) as total_sales, sum(case when r.order_id is not null then o.sales else 0 end) as actual_sal
 es from orders o left join returns r on o.order_id=r.order_id group by o.category;
 
+mysql> select o.category, sum(o.sales) as total_sales, sum(case when r.order_id is not null then o.sales else 0 end) as return_sales from orders o lef
+t join returns r on o.order_id= r.order_id group by o.category;
+
 7- write a query to print below 3 columns
 category, total_sales_2019(sales in year 2019), total_sales_2020(sales in year 2020)
 mysql> select category, sum(case when year(order_date)=2019 then sales else 0 end) as total_sales_2019, sum(case when year(order_date)=2020 then sales else 0 end) as total_sales_2020 from orders group by category;
 
+mysql> select category,sum(case when year(order_date)=2020 then sales else 0 end) as total_sales_2020 ,sum(case when year(order_date)=2019 then sales
+else 0 end) as total_sales_2019 from orders group by category;
+
 8- write a query print top 5 cities in west region by average no of days between order date and ship date.
-mysql> select city, avg(datediff(ship_date,order_date)) as no_days_to_ship from orders where region="West" group by city order b
-y no_days_to_ship desc limit 5;
+mysql> select city, avg(datediff(ship_date,order_date)) as no_days_to_ship from orders where region="West" group by city order by no_days_to_ship desc limit 5;
+
+mysql> select city from orders where region='West' group by city order by avg(datediff(ship_date,order_date)) desc limit 5;
 
 9- write a query to print emp name, manager name and senior manager name (senior manager is manager's manager)
 mysql> select e.emp_name as employee_name, m.emp_name as manager_name, sr.emp_name as senior_manager from
     -> employee e inner join employee m on e.manager_id=m.emp_id
     -> inner join employee sr on m.manager_id=sr.emp_id;
+mysql> select e.emp_name as employee_name, m.emp_name manager_name, sm.emp_name sr_manager_name from employee e inner join employee m on e.manager_id=m.emp_id inner join employee sm on m.manager_id=sm.emp_id;
 
 
 
