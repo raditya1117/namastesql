@@ -2,9 +2,14 @@
 team_name, no_of_matches_played , no_of_wins , no_of_losses
 mysql> select team as team_name, count(*) as no_of_matches_played, sum(win_flag) as no_of_wins, count(*)-sum(win_flag) as no_of_losses from (select Team_1 as team, case when Winner=Team_1 then 1 else 0 end as win_flag from icc_world_cup union all select Team_2, case when Winner=Team_2 then 1 else 0 end as win_flag from icc_world_cup) as win_flag_table group by win_flag_table.team;
 
+mysql> with win_flag_cte as (select Team_1 as team, case when Team_1=Winner then 1 else 0 end as win_flag from icc_world_cup UNION ALL select Team_2 as team,case when Team_2=Winner then 1 else 0 end as win_flag from icc_world_cup) select team, count(*) as number_of_matches, sum(win_flag) as num_wins, count(*)-sum(win_flag) as num_losses from win_flag_cte group by team;
+
+
 2- write a query to print first name and last name of a customer using orders table(everything after first space can be considered as last name)
 customer_name, first_name,last_name
 mysql> select distinct customer_name,substr(customer_name,1,position(" " in customer_name)-1) as first_name, substr(customer_name,position(" " in customer_name)+1) as last_name from orders;
+
+mysql> select distinct customer_name,left(customer_name,position(' ' in customer_name)) as first_name, substr(customer_name, position(' ' in customer_name)+1, length(customer_name)-position(' ' in customer_name)) as last_name from orders;
 
 
 
@@ -18,6 +23,7 @@ mysql> select d1.id, count(distinct d1.start_time, d1.end_time) as total_rides, 
 4- write a query to print customer name and no of occurence of character 'n' in the customer name.
 customer_name , count_of_occurence_of_n
 mysql> select distinct customer_name, length(customer_name)-length(replace(customer_name,'n','')) as count_of_occurence_of_n from orders;
+
 
 
 
@@ -36,8 +42,16 @@ select 'sub_category' as hierarchy_type, sub_category as hierarchy_name, sum(cas
 union all 
 select 'ship_mode' as hierarchy_type,ship_mode as hierarchy_name, sum(case when region='East' then sales else 0 end) as total_sales_in_east_region, sum(case when region='West' then sales else 0 end) as total_sales_in_west_region from orders group by ship_mode;
 
+mysql> select 'category' as hierachy_type, category as hierarchy_name , sum(case when region='West' then sales else 0 end) as total_sales_in_west_region,sum(case when region='East' then sales else 0 end) as total_sales_in_east_region from orders group by category 
+UNION
+select 'sub_category' as hierachy_type, sub_category as hierarchy_name , sum(case when region='West' then sales else 0 end) as total_sales_in_west_region,sum(case when region='East' then sales else 0 end) as total_sales_in_east_region from orders group by sub_category
+UNION
+select 'ship_mode' as hierachy_type, ship_mode as hierarchy_name , sum(case when region='West' then sales else 0 end) as total_sales_in_west_region,sum(case when region='East' then sales else 0 end) as total_sales_in_east_region from orders group by ship_mode;
+
 6- the first 2 characters of order_id represents the country of order placed . write a query to print total no of orders placed in each country
 (an order can have 2 rows in the data when more than 1 item was purchased in the order but it should be considered as 1 order)
 
 mysql> select substring(order_id,1,2) as country_code, count(distinct order_id) as order_count from orders group by country_code;
+mysql> select left(order_id,2) as country, count(distinct order_id) as order_count from orders group by left(order_id, 2);
+
 
