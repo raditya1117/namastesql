@@ -56,6 +56,12 @@ where date_part('year', post_date)=2021
 group by user_id
 having max(date_part('DOY', post_date))-min(date_part('DOY', post_date))>0;
 
+SELECT user_id, EXTRACT (DOY from max(post_date))-extract (DOY from min(post_date)) as days_between
+FROM posts
+where EXTRACT(year from post_Date)=2021
+group by user_id
+having count(*)>1;
+
 6- https://datalemur.com/questions/teams-power-users
 select sender_id, count(*) as message_count
 from messages where date_part('month', sent_date)=8 and date_part('year', sent_date)=2022
