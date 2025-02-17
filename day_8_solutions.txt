@@ -38,10 +38,16 @@ ORDER BY p.page_id;
 3- https://datalemur.com/questions/tesla-unfinished-parts
 SELECT part, assembly_step 
 FROM parts_assembly where finish_date is NULL;
+SELECT part, assembly_step
+FROM parts_assembly
+where finish_date IS NULL;
 4- https://datalemur.com/questions/laptop-mobile-viewership
 SELECT sum(case when device_type='laptop' then 1 else 0 end) as laptop_views,
 sum(case when device_type in ('tablet','phone') then 1 else 0 end) as mobile_views
 FROM viewership;
+select sum(case when device_type='laptop' then 1 else 0 end) as laptop_views,
+sum(case when device_type in ('phone', 'tablet') then 1 else 0 end) as mobile_views
+from viewership;
 5- https://datalemur.com/questions/sql-average-post-hiatus-1
 SELECT user_id,
 max(date_part('DOY', post_date))-min(date_part('DOY', post_date)) as days_between
