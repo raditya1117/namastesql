@@ -111,3 +111,8 @@ GROUP BY app_id;
 SELECT e.user_id
 FROM emails e inner join texts t on e.email_id=t.email_id
 where date_part('DOY', t.action_date)-date_part('DOY', e.signup_date)=1 and t.signup_action='Confirmed';
+select e.user_id
+from emails e left join texts t 
+ON e.email_id=t.email_id
+where EXTRACT(doy from t.action_date)-extract(doy from e.signup_date)=1 
+and t.signup_action='Confirmed';
