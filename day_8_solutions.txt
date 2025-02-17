@@ -82,15 +82,30 @@ on t.user_id=u.user_id where t.status='Completed'
 GROUP BY u.city
 ORDER BY total_orders DESC
 limit 3;
+SELECT u.city, count(*) as total_orders
+FROM trades t left join users u
+on u.user_id=t.user_id
+where t.status='Completed'
+group by u.city 
+order by total_orders DESC
+limit 3;
 8- https://datalemur.com/questions/sql-avg-review-ratings
 SELECT date_part('month', submit_date) as mth,product_id as product, round(AVG(stars),2) AS avg_stars
 FROM reviews
 GROUP BY date_part('month', submit_date), product_id
 ORDER BY mth, product;
+SELECT EXTRACT (MONTH from submit_date) as mth,product_id as product,
+round(avg(stars),2) as avg_stars FROM reviews
+GROUP BY EXTRACT (MONTH from submit_date), product_id
+order by mth, product;
 9- https://datalemur.com/questions/click-through-rate
 SELECT app_id, 
 round(count(case when event_type='click' then 1 else null end)*100.0/count(case when event_type='impression' then 1 else null end),2) as ctr 
 FROM events where date_part('year', timestamp)=2022
+GROUP BY app_id;
+SELECT app_id, round(100.0*sum(case when event_type='click' then 1 else 0 end)/sum(case when event_type='impression' then 1 else 0 end),2) as ctr 
+FROM events
+where extract(year from timestamp)=2022
 GROUP BY app_id;
 10-https://datalemur.com/questions/second-day-confirmation
 SELECT e.user_id
