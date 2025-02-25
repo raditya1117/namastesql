@@ -17,18 +17,37 @@ cast(order_date as date) -> order_date::date
 SELECT candidate_id
 FROM candidates GROUP BY candidate_id having sum(CASE WHEN skill in ('Python','Tableau','PostgreSQL') then 1 else 0 END)=3
 ORDER BY candidate_id;
+
+SELECT candidate_id FROM candidates
+where skill IN ('Python','Tableau','PostgreSQL')
+group by candidate_id
+having count(*)=3
+order by candidate_id;
 2- https://datalemur.com/questions/sql-page-with-no-likes
 SELECT p.page_id FROM 
 pages p LEFT JOIN page_likes pl on p.page_id=pl.page_id
 group by p.page_id
 having count(pl.page_id)=0;
+SELECT p.page_id
+FROM pages p 
+LEFT JOIN page_likes pl
+ON p.page_id=pl.page_id
+GROUP BY p.page_id
+having count(pl.page_id)=0
+ORDER BY p.page_id;
 3- https://datalemur.com/questions/tesla-unfinished-parts
 SELECT part, assembly_step 
 FROM parts_assembly where finish_date is NULL;
+SELECT part, assembly_step
+FROM parts_assembly
+where finish_date IS NULL;
 4- https://datalemur.com/questions/laptop-mobile-viewership
 SELECT sum(case when device_type='laptop' then 1 else 0 end) as laptop_views,
 sum(case when device_type in ('tablet','phone') then 1 else 0 end) as mobile_views
 FROM viewership;
+select sum(case when device_type='laptop' then 1 else 0 end) as laptop_views,
+sum(case when device_type in ('phone', 'tablet') then 1 else 0 end) as mobile_views
+from viewership;
 5- https://datalemur.com/questions/sql-average-post-hiatus-1
 SELECT user_id,
 max(date_part('DOY', post_date))-min(date_part('DOY', post_date)) as days_between
@@ -37,12 +56,25 @@ where date_part('year', post_date)=2021
 group by user_id
 having max(date_part('DOY', post_date))-min(date_part('DOY', post_date))>0;
 
+SELECT user_id, EXTRACT (DOY from max(post_date))-extract (DOY from min(post_date)) as days_between
+FROM posts
+where EXTRACT(year from post_Date)=2021
+group by user_id
+having count(*)>1;
+
 6- https://datalemur.com/questions/teams-power-users
 select sender_id, count(*) as message_count
 from messages where date_part('month', sent_date)=8 and date_part('year', sent_date)=2022
 GROUP BY sender_id
 ORDER BY message_count DESC
 limit 2;
+SELECT sender_id, count(*) as message_count
+FROM messages
+where EXTRACT(month from sent_date)=8 and EXTRACT (year from sent_date)=2022
+GROUP BY sender_id
+ORDER by message_count DESC
+limit 2;
+
 7- https://datalemur.com/questions/completed-trades
 SELECT u.city, count(*) as total_orders FROM 
 trades t inner JOIN users u 
@@ -50,17 +82,37 @@ on t.user_id=u.user_id where t.status='Completed'
 GROUP BY u.city
 ORDER BY total_orders DESC
 limit 3;
+SELECT u.city, count(*) as total_orders
+FROM trades t left join users u
+on u.user_id=t.user_id
+where t.status='Completed'
+group by u.city 
+order by total_orders DESC
+limit 3;
 8- https://datalemur.com/questions/sql-avg-review-ratings
 SELECT date_part('month', submit_date) as mth,product_id as product, round(AVG(stars),2) AS avg_stars
 FROM reviews
 GROUP BY date_part('month', submit_date), product_id
 ORDER BY mth, product;
+SELECT EXTRACT (MONTH from submit_date) as mth,product_id as product,
+round(avg(stars),2) as avg_stars FROM reviews
+GROUP BY EXTRACT (MONTH from submit_date), product_id
+order by mth, product;
 9- https://datalemur.com/questions/click-through-rate
 SELECT app_id, 
 round(count(case when event_type='click' then 1 else null end)*100.0/count(case when event_type='impression' then 1 else null end),2) as ctr 
 FROM events where date_part('year', timestamp)=2022
 GROUP BY app_id;
+SELECT app_id, round(100.0*sum(case when event_type='click' then 1 else 0 end)/sum(case when event_type='impression' then 1 else 0 end),2) as ctr 
+FROM events
+where extract(year from timestamp)=2022
+GROUP BY app_id;
 10-https://datalemur.com/questions/second-day-confirmation
 SELECT e.user_id
 FROM emails e inner join texts t on e.email_id=t.email_id
 where date_part('DOY', t.action_date)-date_part('DOY', e.signup_date)=1 and t.signup_action='Confirmed';
+select e.user_id
+from emails e left join texts t 
+ON e.email_id=t.email_id
+where EXTRACT(doy from t.action_date)-extract(doy from e.signup_date)=1 
+and t.signup_action='Confirmed';
