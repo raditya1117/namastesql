@@ -1,0 +1,16 @@
+1. write a query to print 3rd highest salaried employee details for each department (give preferece to younger employee in case of a tie). 
+In case a department has less than 3 employees then print the details of highest salaried employee in that department.
+
+
+mysql> with rank_cte as (select *, rank() over(partition by dept_id order by salary desc, emp_age asc) as sal_rank from employee), hr_cte as(select dept_id, max(sal_rank) as highest_rank from rank_cte group by dept_id), hrs_cte as (select rank_cte.dept_id, emp_id, emp_name, salary, emp_age,sal_rank, highest_rank from rank_cte inner join hr_cte on rank_cte.dept_id=hr_cte.dept_id), final_cte as (select *, (case when highest_rank>=3 then 3 else high
+est_rank end) as rank_to_select from hrs_cte) select dept_id, emp_id, emp_name, salary from final_cte where sal_rank=rank_to_select;
+
+
+
+
+4- write a query to print top 3 products in each category by year over year sales growth in year 2020.
+mysql> with growth_cte as (select category,product_id, (sum(case when year(order_date)=2020 then sales else 0 end)-sum(case when year(order_date)=2019 then sales else 0 end)) as abs_growth from orders group by category, product_id), rank_cte as(select *, rank() over (partition by category order by abs_growth desc) as category_rank from growth_cte) select * from rank_cte where category_rank<=3;
+
+
+with growth_cte as (select category,product_id, (sum(case when year(order_date)=2020 then sales else 0 end)-sum(case when year(order_date)=2019 then sales else 0 end))/sum(case when year(order_date)=2019 then sales else 0 end) as yoy_growth from orders group by category, product_id), rank_cte as(select *, rank() over (partition by category order by yoy_growth desc) as category_rank from growth_cte) select * from rank_cte where category_rank<=3;
+
